@@ -4,30 +4,12 @@ esphome:
   includes:
     - blink_logic.h
   
-  # Запуск C++ функции при включении
-  on_boot:
-    priority: 600
-    then:
-      - lambda: 'native_blink(10, 100);'
-
 esp32:
   board: esp32-c3-devkitm-1
   variant: esp32c3
 
-# Отключаем попытки подключения к Wi-Fi и API
-# Если не указать блок wifi, ESPHome не будет его инициализировать
-logger:
-  # На C3 вывод идет через USB-Serial JTAG, логи будут видны в консоли
-  hardware_uart: USB_SERIAL_JTAG 
-
-output:
-  - platform: gpio
-    pin: GPIO8
-    inverted: true
-    id: led_output
-
-# Чтобы управлять светодиодом как объектом из C++
-light:
-  - platform: binary
-    output: led_output
-    id: led_internal
+# Это аналог функции loop(), которая будет дергать твой C++ код
+interval:
+  - interval: 1s
+    then:
+      - lambda: 'my_blink();'
