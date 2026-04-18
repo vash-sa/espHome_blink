@@ -1,0 +1,37 @@
+name: Compile ESPHome
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install ESPHome
+        run: pip install esphome
+
+      - name: Compile YAML
+        run: esphome compile bt.yaml
+
+      - name: Copy build artifacts to output
+        run: |
+          # Создаем папку, как ты и хотел
+          mkdir -p output
+          # ESPHome всегда кладет бинарники в папку .esphome/build/
+          # Мы копируем оттуда ВСЕ .bin файлы в нашу новую папку output
+          find .esphome/build/ -name "*.bin" -exec cp {} output/ \;
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: esp32-c3-firmware
+          # Забираем созданную папку
+          path: output/
+          if-no-files-found: error
